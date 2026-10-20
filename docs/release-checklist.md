@@ -1,6 +1,6 @@
 # Release checklist
 
-Status as of 2026-10-20: initial source is public on GitHub main. The npm alpha is being prepared; no npm publication has been verified yet.
+Status as of 2026-10-20: pocket-tts-fast@0.1.0-alpha.0 is published on npm. The alpha and latest tags resolve to this version; exact tarball integrity and a fresh-cache registry installation were verified. Source is public on GitHub main.
 
 ## Done in this repository
 
@@ -13,7 +13,7 @@ Status as of 2026-10-20: initial source is public on GitHub main. The npm alpha 
 - [x] EOS / sentence-pause repair ported from the Codex snapshot; hard real-model ending test (14 items) plus a Whisper transcript check; browser check of raw vs scheduled endings in immediate / queued / complete modes, both cache modes, stop→retry.
 - [x] Source inventory with hashes (`docs/source-inventory.json`) and notices (`THIRD_PARTY_NOTICES.md`).
 
-## Open before an alpha
+## Remaining alpha validation
 
 - [ ] Human listening check of the ending corpus (`test/models/endings.de.json`), especially the utterance-initial "Ich" that Whisper-small missed in 2 items.
 - [ ] Decide on number normalization ("3.15 Uhr").
@@ -27,12 +27,15 @@ Status as of 2026-10-20: initial source is public on GitHub main. The npm alpha 
 
 ## Later, only after explicit approval
 
-- [ ] Push the repository, deploy the demo with COOP/COEP, publish the `alpha` dist-tag, install from npm in a clean consumer.
+- [x] Push source, publish pocket-tts-fast@0.1.0-alpha.0, verify registry integrity/tags, and install from npm in a clean consumer.
+- [ ] Deploy the public demo with COOP/COEP.
 - [ ] Focused PR to the graph exporter (symbolic cache axis) and/or `vlapky/pocket-tts-js` (runtime allocation), with the identity evidence.
 - [ ] Minimal README listing PR to `kyutai-labs/pocket-tts` ("In-browser implementations").
 
-## Alpha release preparation
+## Alpha release verification
 
 The user selected the unscoped package pocket-tts-fast. Account login was verified as ali-dulaimi; no npm organization is required. Public alpha publishConfig and prepack build are configured. Packed-consumer checks cover the stock voice hash/size and package allowlist. Controlled benchmarks, broader browsers/devices and subjective listening remain outstanding; the alpha README labels these boundaries.
 
-Fresh checks for the prepared alpha: 85 unit tests passed; public types passed; packed installs/builds passed for vanilla, Vite and React/Vite. Real-model checks: fixed/dynamic PCM identity passed on three inputs, and all fourteen ending-corpus cases passed (every generated frame delivered, EOS reached, numeric tail thresholds satisfied). Optional original-reference hash comparison was skipped because POCKET_TTS_REFERENCE_F32 was unset. Human naturalness and transcript completeness are not inferred from these checks. npm login succeeded; the unscoped name was selected and publication is pending. No npm publication has occurred.
+Fresh checks for the prepared alpha: 85 unit tests passed; public types passed; packed installs/builds passed for vanilla, Vite and React/Vite. Real-model checks: fixed/dynamic PCM identity passed on three inputs, and all fourteen ending-corpus cases passed (every generated frame delivered, EOS reached, numeric tail thresholds satisfied). Optional original-reference hash comparison was skipped because POCKET_TTS_REFERENCE_F32 was unset. Human naturalness and transcript completeness are not inferred from these checks. npm login succeeded; the unscoped name was selected and the npm alpha is published. Npm publication and a clean registry install are now verified.
+
+Registry install verification: `npm install pocket-tts-fast@alpha` in a new temporary project with a fresh npm cache succeeded. All 27 installed files matched the reviewed tarball; SSR import made no network/Worker calls, worker export resolved, and bundled Alba bytes matched the pinned manifest. Registry integrity: sha512-QzR5g5ZQUkgv6kfaTqcQpEZGTH9PO92q6APv9Dnxkm2isqGC64Z7EsyITwY762UrJUr346VYgzEE1Vl+SNHdew==.

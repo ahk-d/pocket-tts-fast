@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.0 (unreleased)
+## 0.1.0-alpha.0 (2026-10-20)
 
 First extraction of the browser runtime into its own package.
 
