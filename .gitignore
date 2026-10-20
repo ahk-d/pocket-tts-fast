@@ -22,3 +22,6 @@ consumers/*/dist/
 consumers/*/package-lock.json
 __pycache__/
 .venv/
+
+# Public, attributed CC-BY-4.0 stock embedding included in the npm alpha.
+!voices/alba-casual.emb.npy

@@ -1,4 +1,4 @@
-// Demo for @flowent/pocket-tts. Uses the built package from /dist (the same
+// Demo for pocket-tts-fast. Uses the built package from /dist (the same
 // files npm installs). Query parameters override asset locations:
 //   ?models=<url of the folder with bundle.json>  ?voices=<url of the folder with voices/>
 //   ?ort=<onnxruntime-web dist url>
@@ -268,6 +268,6 @@ $("clone").onclick = clone;
 $("export").onclick = exportResults;
 $("clonefile").onchange = () => ($("clone").disabled = busy || !$("clonefile").files.length);
 if (!local && !params.get("voices")) {
-  status("Note: stock voice files are not hosted publicly yet; pass ?voices=<url> or clone a voice from a file.");
+  status("Serve the package voices/ folder from your static directory and pass ?voices=<parent-url>, or clone a voice from a file.");
 }
 window.__demo = { get tts() { return tts; }, history };

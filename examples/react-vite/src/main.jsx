@@ -7,7 +7,7 @@ function App() {
   const { status, progress, error, info, speak, stop } = usePocketTTS({
     // Optional overrides for self-hosted assets (defaults: pinned Hugging Face + jsDelivr).
     modelBaseUrl: import.meta.env.VITE_MODEL_BASE_URL,
-    voiceBaseUrl: import.meta.env.VITE_VOICE_BASE_URL,
+    voiceBaseUrl: import.meta.env.VITE_VOICE_BASE_URL ?? "/",
     ortBaseUrl: import.meta.env.VITE_ORT_BASE_URL,
   });
   return (

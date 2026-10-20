@@ -1,7 +1,7 @@
 {
-  "name": "@flowent/pocket-tts",
+  "name": "pocket-tts-fast",
   "version": "0.1.0-alpha.0",
-  "description": "Fast, local Pocket TTS in the browser: Web Worker + onnxruntime-web WASM, dynamic KV caches (bit-identical audio), stock voices, optional local cloning, streaming playback.",
+  "description": "Optimized Pocket TTS for the browser: dynamic KV caches, streaming audio, stock voices and optional local cloning. Framework-free JavaScript with TypeScript types.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -14,13 +14,15 @@
       "default": "./dist/index.js"
     },
     "./worker.js": "./dist/worker.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./voices/alba-casual.emb.npy": "./voices/alba-casual.emb.npy"
   },
   "files": [
     "dist",
     "README.md",
     "LICENSE",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "voices"
   ],
   "scripts": {
     "build": "node scripts/build.mjs && tsc -p tsconfig.json --emitDeclarationOnly",
@@ -32,7 +34,8 @@
     "stock-voice": "node tools/prepare-stock-voice.mjs",
     "verify-assets": "node tools/verify-assets.mjs",
     "bench": "node bench/bench.mjs",
-    "serve": "node tools/serve.mjs"
+    "serve": "node tools/serve.mjs",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
@@ -42,5 +45,31 @@
   "engines": {
     "node": ">=20"
   },
-  "keywords": ["tts", "text-to-speech", "pocket-tts", "kyutai", "onnxruntime-web", "wasm", "web-worker", "german"]
+  "keywords": [
+    "tts",
+    "text-to-speech",
+    "pocket-tts",
+    "kyutai",
+    "onnxruntime-web",
+    "wasm",
+    "web-worker",
+    "german"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahk-d/pocket-tts-fast.git"
+  },
+  "homepage": "https://github.com/ahk-d/pocket-tts-fast#readme",
+  "bugs": {
+    "url": "https://github.com/ahk-d/pocket-tts-fast/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "author": {
+    "name": "Ali",
+    "url": "https://github.com/ahk-d"
+  }
 }

@@ -33,7 +33,7 @@ changes your app's headers.
 | Option | What to serve | Notes |
 |---|---|---|
 | `modelBaseUrl` | `bundle.json`, `tokenizer.model`, `bos_before_voice.npy` and the `.onnx` files for your precision | `node tools/fetch-models.mjs --precision int8-wide` downloads and verifies them. Hashes are always checked |
-| `voiceBaseUrl` | `voices/alba-casual.emb.npy` | `node tools/prepare-stock-voice.mjs`. Defaults to `modelBaseUrl` |
+| `voiceBaseUrl` | `voices/alba-casual.emb.npy` | Copy the npm package's `voices/` folder to your static directory. Set the base to its parent (`/` when served as `/voices/...`). Without an override it defaults to `modelBaseUrl`, which does not host this embedding |
 | `ortBaseUrl` | `node_modules/onnxruntime-web/dist/` (needs `ort.wasm.min.mjs` and `ort-wasm-simd-threaded.{mjs,wasm}`) | Must be version 1.20.0. Serve `.wasm` as `application/wasm` |
 | `workerUrl` | `dist/worker.js` | Only if your bundler can't handle `new Worker(new URL(...))` |
 

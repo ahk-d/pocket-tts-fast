@@ -24,4 +24,4 @@ SOFTWARE.
 -----------------------------------------------------------------------
 
 The MIT license covers only this source code. It does NOT cover the model
-weights or voices the runtime downloads; see THIRD_PARTY_NOTICES.md.
+weights or voice assets (bundled or downloaded); see THIRD_PARTY_NOTICES.md.

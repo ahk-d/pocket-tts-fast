@@ -1,7 +1,7 @@
 // A small hook over the framework-independent package. Copy and adapt it;
 // the package itself has no React dependency.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PocketTTS } from "@flowent/pocket-tts";
+import { PocketTTS } from "pocket-tts-fast";
 
 export function usePocketTTS(options) {
   const ref = useRef(null);

@@ -1,8 +1,8 @@
-import { PocketTTS } from "@flowent/pocket-tts";
+import { PocketTTS } from "pocket-tts-fast";
 
 const tts = new PocketTTS({
   modelBaseUrl: import.meta.env.VITE_MODEL_BASE_URL,
-  voiceBaseUrl: import.meta.env.VITE_VOICE_BASE_URL,
+  voiceBaseUrl: import.meta.env.VITE_VOICE_BASE_URL ?? "/",
   ortBaseUrl: import.meta.env.VITE_ORT_BASE_URL,
 });
 const status = (s) => (document.getElementById("status").textContent = s);

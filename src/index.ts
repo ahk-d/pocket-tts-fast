@@ -1,4 +1,4 @@
-// @flowent/pocket-tts — fast, local Pocket TTS in the browser.
+// pocket-tts-fast — fast, local Pocket TTS in the browser.
 // Importing has no side effects; nothing downloads until load().
 
 import { wavFromChunks } from "./core/index.js";

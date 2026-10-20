@@ -1,19 +1,20 @@
-# @flowent/pocket-tts
+# pocket-tts-fast
 
 Fast, local [Kyutai Pocket TTS](https://huggingface.co/kyutai/pocket-tts) in
 the browser. Speech is generated on the user's device with onnxruntime-web
 (WebAssembly) in a Web Worker. Text and voice clips are not uploaded anywhere.
 
-* **About 2× faster generation on this machine, same audio.** The stock graphs
+* **Dynamic-cache optimization with matching PCM in tested cases.** The stock graphs
   copy a fixed 1000-slot KV cache, 49 MB, into and out of WASM on every frame.
   This runtime sizes the caches to what is actually used. The output is
-  bit-identical. See [How it's faster](#how-its-faster).
+  bit-identical in the tested German/WASM cases. See [How it's faster](#how-its-faster).
 * **Stock voice first.** The Alba voice loads as a 0.5 MB embedding, and no
   voice encoder is needed.
 * **Optional local cloning.** Clips are encoded on the device, once. The
-  resulting embedding works with every precision.
-* **Clean sentence endings.** Every sentence is generated as its own chunk
-  with its own end-of-speech tail, so the last word isn't clipped. A sentence
+  resulting embedding can be reused across the supported precision profiles.
+* **Sentence-ending guards.** Every sentence is generated as its own chunk
+  with its own end-of-speech tail. Ending-corpus checks pass; listening
+  validation and the limitations below still apply. A sentence
   scanner keeps "Dr.", "z. B.", "3.14" and "3. Oktober" intact, and
   typographic quotes, apostrophes and dashes are normalized (left in, they
   derailed the model). Checked on real generated speech with Whisper.
@@ -31,13 +32,20 @@ Status: **alpha**. German is the only validated language, on browser WASM
 ## Quick start
 
 ```bash
-npm install @flowent/pocket-tts
+npm install pocket-tts-fast@alpha
 ```
 
-```js
-import { PocketTTS } from "@flowent/pocket-tts";
+Copy `node_modules/pocket-tts-fast/voices/` into your app's static
+directory (for example, `public/voices/` in Vite). Serve the file at
+`/voices/alba-casual.emb.npy` and retain its attribution README. The embedding
+is included in npm; no separate upload or preparation script is needed.
+Set `voiceBaseUrl` to the directory **containing** `voices/`, not to `voices/`
+itself. For an app hosted at the domain root, use `/`:
 
-const tts = new PocketTTS({ voiceBaseUrl: "/voices" }); // see "Assets" below
+```js
+import { PocketTTS } from "pocket-tts-fast";
+
+const tts = new PocketTTS({ voiceBaseUrl: "/" }); // see "Assets" below
 await tts.load((e) => e.type === "progress" && console.log(e.label, e.loaded, e.total));
 const voice = await tts.useVoice("alba");
 
@@ -56,14 +64,16 @@ effect or event handler). Importing the module during SSR does nothing.
 ### Cloning a voice (optional, local)
 
 ```js
-import { decodeAudioFile } from "@flowent/pocket-tts";
+import { decodeAudioFile } from "pocket-tts-fast";
 
 const { audio, sampleRate } = await decodeAudioFile(file); // decoded in the browser
 const embedding = await tts.encodeVoice(audio, { inputSampleRate: sampleRate }); // loads the ~40 MB encoder once
 const clone = await tts.loadVoiceEmbedding(embedding); // store `embedding` to skip encoding next time
 ```
 
-Only use recordings you have the right to use.
+Only use recordings you have the right to use, with the speaker's consent.
+Review the [upstream model-use conditions](https://huggingface.co/kyutai/pocket-tts)
+as well as the model and voice licenses.
 
 ## API
 
@@ -97,25 +107,29 @@ Expert exports: `PocketTTSEngine` (the platform-agnostic generation loop),
 
 ## Assets
 
-Nothing is downloaded at `npm install`. At `load()` the runtime fetches:
+Installing npm includes the small Alba embedding; no ONNX models or extra
+assets are fetched by install scripts. At `load()` the runtime fetches:
 
 * **Graphs, tokenizer, metadata:** from the commit-pinned Hugging Face revision
   of [KevinAHM/pocket-tts-onnx](https://huggingface.co/KevinAHM/pocket-tts-onnx)
   (`58a6d00`). Each file is checked against the SHA-256 and size in
-  [`src/manifest.ts`](src/manifest.ts); a mismatch is an error, never a
+  [`src/manifest.ts`](https://github.com/ahk-d/pocket-tts-fast/blob/main/src/manifest.ts); a mismatch is an error, never a
   fallback. Override `modelBaseUrl` to self-host.
 * **onnxruntime-web 1.20.0:** from jsDelivr (pinned version). Override
   `ortBaseUrl` to self-host `node_modules/onnxruntime-web/dist/`.
-* **Stock voice:** `voices/alba-casual.emb.npy` (0.5 MB). It is **not hosted
-  publicly yet**: generate it with `node tools/prepare-stock-voice.mjs` and
-  serve it under `voiceBaseUrl`. See [docs/hosting.md](docs/hosting.md).
+* **Stock voice:** `voices/alba-casual.emb.npy` (0.5 MB). It is included in this npm package under `voices/`, licensed separately
+  under CC BY 4.0. Copy it to your app's public/static folder as above;
+  fetching it uses `voiceBaseUrl`. Large model files are not bundled.
+  See [hosting instructions](https://github.com/ahk-d/pocket-tts-fast/blob/main/docs/hosting.md).
 
 ## How it's faster
 
 Pocket TTS runs FlowLM once per 80 ms audio frame. The exported graphs declare
 six attention caches of `[2, 1, 1000, 16, 64]` float32. onnxruntime-web copies
 every input into the WASM heap and every output back out, so each frame
-moves **49 MB in and 49 MB out**, though a sentence uses only ~100–200 slots.
+handles **49 MB of cache inputs and 49 MB of cache outputs**, though
+a short sentence uses far fewer slots. These are tensor byte sizes, not
+profiled memory-bus throughput.
 The graphs only read `Slice[0 : step + len]`, so the unused slots are never
 needed.
 
@@ -134,13 +148,18 @@ headroom, and grows them when needed. In the Mimi decoder, the passthrough
   INT8-wide, stock voice, machine under load. Earlier development measurements
   on the same machine: RTF ≈ 1.1 → 0.6 in Node with 4 threads, and 6.6–10.6 → 1.2
   in a 1-thread browser. Controlled, per-device release numbers are still to
-  come ([protocol](bench/protocol.md)).
+  come ([protocol](https://github.com/ahk-d/pocket-tts-fast/blob/main/bench/protocol.md)).
 
-Details, evidence and caveats: [docs/cache-optimization.md](docs/cache-optimization.md).
+Details, evidence and caveats: [docs/cache-optimization.md](https://github.com/ahk-d/pocket-tts-fast/blob/main/docs/cache-optimization.md).
 
 ## Development
 
+The following commands require a source checkout; tools, tests and examples
+are in the GitHub repository, not the npm tarball.
+
 ```bash
+git clone https://github.com/ahk-d/pocket-tts-fast.git
+cd pocket-tts-fast
 npm install
 npm test                 # build + 85 unit tests (no models needed)
 npm run test:types       # public .d.ts against a usage file
@@ -153,9 +172,9 @@ npm run serve            # demo at http://localhost:8787 (cross-origin isolated)
 node bench/bench.mjs --cache both --repeat 5                 # see bench/protocol.md
 ```
 
-Examples: [`examples/vanilla`](examples/vanilla) (no bundler),
-[`examples/vite-vanilla`](examples/vite-vanilla),
-[`examples/react-vite`](examples/react-vite) (includes a small `usePocketTTS`
+Examples: [`examples/vanilla`](https://github.com/ahk-d/pocket-tts-fast/blob/main/examples/vanilla) (no bundler),
+[`examples/vite-vanilla`](https://github.com/ahk-d/pocket-tts-fast/blob/main/examples/vite-vanilla),
+[`examples/react-vite`](https://github.com/ahk-d/pocket-tts-fast/blob/main/examples/react-vite) (includes a small `usePocketTTS`
 hook). Vue, Svelte and Next.js have not been tested.
 
 ## Known limitations
@@ -171,7 +190,8 @@ hook). Vue, Svelte and Next.js have not been tested.
   problems.
 * **An utterance-initial "Ich" was missed by Whisper (small)** in 2 of 14
   corpus items ("Ich komme…" was heard as "Komm…"). Speech starts within 50 ms,
-  so nothing is cut off; this still needs a human listening check.
+  but onset timing alone cannot establish that every word is intact. This
+  remains a known alpha limitation requiring human listening.
 * Browser WASM on CPU only. WebGPU, FP16, INT4 and React Native are not
   supported in this release.
 * RTF depends heavily on the device, on threads and on what else is running.
@@ -184,7 +204,7 @@ Code: MIT ([LICENSE](LICENSE)), derived in part from
 Model: Kyutai Pocket TTS, CC BY 4.0. ONNX export and INT8 graphs: KevinAHM,
 CC BY 4.0. Voice "Alba": Alba MacKenna via
 [kyutai/tts-voices](https://huggingface.co/kyutai/tts-voices), CC BY 4.0.
-Weights and voices are downloaded at runtime and are not covered by the MIT
-license; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Built by Ali
+Model weights are downloaded at runtime. The bundled Alba embedding is
+CC BY 4.0, not MIT; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Built by Ali
 with Codex and Claude; the dynamic-cache change was implemented by Claude and
 verified in Ali's sessions.

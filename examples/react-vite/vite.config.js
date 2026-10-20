@@ -5,7 +5,7 @@ const isolation = { "Cross-Origin-Opener-Policy": "same-origin", "Cross-Origin-E
 
 export default defineConfig({
   plugins: [react()],
-  optimizeDeps: { exclude: ["@flowent/pocket-tts"] },
+  optimizeDeps: { exclude: ["pocket-tts-fast"] },
   server: { headers: isolation },
   preview: { headers: isolation },
 });

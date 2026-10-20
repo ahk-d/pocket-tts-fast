@@ -32,4 +32,4 @@ await build({
   logLevel: "warning",
   define: { __POCKET_TTS_BUILD__: JSON.stringify(BUILD_ID) },
 });
-console.log(`build ${BUILD_ID}`);
+console.error(`build ${BUILD_ID}`);

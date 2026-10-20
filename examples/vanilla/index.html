@@ -10,14 +10,14 @@
   <textarea id="text" rows="3" cols="50">Guten Morgen! Wie geht es dir heute?</textarea><br>
   <button id="speak">Speak</button> <span id="status"></span>
   <script type="module">
-    import { PocketTTS } from "./node_modules/@flowent/pocket-tts/dist/index.js";
+    import { PocketTTS } from "./node_modules/pocket-tts-fast/dist/index.js";
 
     // Defaults: graphs from the pinned Hugging Face revision, onnxruntime-web 1.20.0 from jsDelivr.
-    // Stock voice files are self-hosted until they are published: point voiceBaseUrl at them.
+    // Copy the package voices/ folder into your static root; point voiceBaseUrl at its parent.
     const params = new URLSearchParams(location.search);
     const tts = new PocketTTS({
       modelBaseUrl: params.get("models") ?? undefined,
-      voiceBaseUrl: params.get("voices") ?? params.get("models") ?? undefined,
+      voiceBaseUrl: params.get("voices") ?? params.get("models") ?? "/",
       ortBaseUrl: params.get("ort") ?? undefined,
     });
     const status = (s) => (document.getElementById("status").textContent = s);

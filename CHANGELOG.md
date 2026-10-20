@@ -4,7 +4,7 @@
 
 First extraction of the browser runtime into its own package.
 
-- Dynamic KV caches, patched in memory from the stock graphs (bit-identical PCM).
+- Dynamic KV caches, patched in memory from the stock graphs (matching PCM in tested German/WASM cases).
 - Precision profiles `fp32`, `int8-core`, `int8-wide`, with a pinned, SHA-256-checked asset manifest.
 - Revision-keyed Cache Storage, finite retries for 429/5xx/network errors, a single download per asset.
 - Stock voice as a precision-independent encoder embedding (Alba, CC BY 4.0).
@@ -20,3 +20,7 @@ First extraction of the browser runtime into its own package.
 - A chunk that hits the 500-frame cap now still delivers its generated frames, reported
   as `frame-cap`, not complete.
 - Worker/client build handshake: a stale cached worker.js is refused.
+
+Alpha packaging: npm name pocket-tts-fast; includes the attributed
+CC-BY-4.0 Alba embedding for consumer self-hosting, automatic prepack build,
+and explicit public alpha publish configuration.
