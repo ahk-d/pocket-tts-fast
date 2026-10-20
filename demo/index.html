@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pocket TTS Web</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Pocket TTS Web</h1>
+      <p class="lede">German text-to-speech running entirely in your browser (WebAssembly). Text and voice clips never leave this page.</p>
+    </header>
+
+    <section class="card" aria-labelledby="speak-h">
+      <h2 id="speak-h">Speak</h2>
+      <div class="row">
+        <label>Voice
+          <select id="voice"></select>
+        </label>
+        <label>Precision
+          <select id="precision">
+            <option value="int8-wide" selected>INT8 wide (smallest download)</option>
+            <option value="int8-core">INT8 core</option>
+            <option value="fp32">FP32</option>
+          </select>
+        </label>
+        <label>Playback
+          <select id="mode">
+            <option value="queued" selected>Queue 1 s, then play</option>
+            <option value="immediate">Start immediately</option>
+            <option value="adaptive">Adaptive (start when no gaps are predicted)</option>
+            <option value="complete">Wait for the whole recording</option>
+          </select>
+        </label>
+      </div>
+      <label class="block">Text
+        <textarea id="text" rows="4">Heute gehen wir zusammen einen Kaffee trinken. Hast du am Nachmittag Zeit?</textarea>
+      </label>
+      <div class="samples" id="samples" aria-label="Example texts"></div>
+      <div class="actions">
+        <button id="speak" class="primary" type="button">Generate &amp; play</button>
+        <button id="stop" type="button" disabled>Stop</button>
+        <button id="replay" type="button" disabled>Replay</button>
+        <button id="download" type="button" disabled>Download WAV</button>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite">Not loaded. The model downloads on first use.</p>
+      <progress id="progress" max="1" value="0" hidden></progress>
+    </section>
+
+    <section class="card" aria-labelledby="result-h">
+      <h2 id="result-h">Last result</h2>
+      <dl id="metrics" class="metrics"><div><dt>Nothing generated yet</dt><dd></dd></div></dl>
+      <details>
+        <summary>What these numbers mean</summary>
+        <ul class="help">
+          <li><b>Ready</b>: model loaded once. Voice changes reuse it.</li>
+          <li><b>Starts speaking</b>: time from Generate to scheduled playback.</li>
+          <li><b>Generation</b>: time to finish the complete recording.</li>
+          <li><b>Playback gaps</b>: waiting for more generated audio, excluding natural pauses.</li>
+          <li><b>RTF below 1</b>: audio is generated faster than it plays.</li>
+        </ul>
+      </details>
+    </section>
+
+    <details class="card lab">
+      <summary><h2>Laboratory</h2></summary>
+      <div class="row">
+        <label>Max threads
+          <input id="threads" type="number" min="1" max="16" value="4">
+        </label>
+        <label class="check"><input id="dyncache" type="checkbox" checked> Dynamic KV cache</label>
+        <label class="check"><input id="usecache" type="checkbox" checked> Keep downloads in Cache Storage</label>
+      </div>
+      <p class="hint">Changing precision, threads or cache mode reloads the model. Fixed vs dynamic cache should produce identical audio: compare the PCM hash.</p>
+      <h3>Clone a voice from a local file</h3>
+      <p class="hint">Encoded on this device (loads a ~40 MB encoder once). Use only recordings you have the right to use.</p>
+      <div class="row">
+        <input id="clonefile" type="file" accept="audio/*">
+        <button id="clone" type="button" disabled>Prepare cloned voice</button>
+      </div>
+      <h3>Session results</h3>
+      <div class="table-wrap"><table id="history"><thead><tr><th>#</th><th>Voice</th><th>Precision</th><th>Cache</th><th>Threads</th><th>Mode</th><th>Start</th><th>Gen.</th><th>Audio</th><th>RTF</th><th>Gaps</th><th>PCM</th></tr></thead><tbody></tbody></table></div>
+      <button id="export" type="button">Export results (JSON)</button>
+    </details>
+
+    <footer>
+      <p>Model: <a href="https://huggingface.co/kyutai/pocket-tts">Kyutai Pocket TTS</a> (CC BY 4.0), ONNX export <a href="https://huggingface.co/KevinAHM/pocket-tts-onnx">KevinAHM/pocket-tts-onnx</a>. Voice “Alba”: Alba MacKenna via <a href="https://huggingface.co/kyutai/tts-voices">kyutai/tts-voices</a> (CC BY 4.0). Runtime based on <a href="https://github.com/vlapky/pocket-tts-js">vlapky/pocket-tts-js</a> (MIT). Not an official Kyutai project.</p>
+    </footer>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

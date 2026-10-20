@@ -1,0 +1,31 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:types
+      - run: npm run test:consumers
+      - run: npm pack --dry-run --json
+  # Real-model checks download ~125 MB of pinned graphs; GitHub runner timings
+  # are not representative and are not reported as benchmarks.
+  models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci && npm run build
+      - run: node tools/fetch-models.mjs --precision int8-wide --cloning
+      - run: node tools/prepare-stock-voice.mjs
+      - run: node tools/verify-assets.mjs
+      - run: npm run test:models

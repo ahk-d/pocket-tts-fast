@@ -1,0 +1,198 @@
+{
+  "note": "Inputs this repository was built from, with SHA-256 at extraction time (2026-10-20). Model files, voice audio, user recordings and benchmark outputs were not copied.",
+  "knownGap": "Resolved 2026-10-20: the Codex runtime snapshot was provided as codex-pocket-runtime-2026-10-20 (records below); its sentence-ending changes were ported.",
+  "excluded": [
+    "onnx-cache/, web/models/ (graphs, voices.bin, voices-*.bin)",
+    "alba-official.wav, juergen-german.safetensors, web/reference.wav, web/reference.f32 (voice audio)",
+    "web/results/, *.png, *.json measurement records",
+    "ort-*.tgz, web/vendor/ (runtime copies; pinned npm/CDN version used instead)",
+    "serve.py (replaced by tools/serve.mjs)",
+    "web/app.mjs, web/streaming.mjs, web/index.html (benchmark UI; replaced by demo/)"
+  ],
+  "records": [
+    {
+      "path": "browser-quant-v1/web/runtime/worker.js",
+      "sha256": "87bf837c026f1367985f0742ecd678ff1aa7b4d7f108ad2c914bbea07edf3b76",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "generation loop, dynamic KV-cache sizing, asset loading",
+      "portedTo": "src/core/engine.ts, src/worker.ts, src/host.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/index.js",
+      "sha256": "941c25b890197724607b3a78a6e1de1a763a154de40583d69880c69bff406822",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "main-thread API, worker lifecycle, encodeVoice/loadVoiceEmbedding",
+      "portedTo": "src/client.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/runtime-options.js",
+      "sha256": "004c6b9226ce0f87b59053a68c4da46d5ce66d34431d51edf28950b0812ae5e9",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "precision stems, cacheCapacityFor, resizeCacheData, seeded noise",
+      "portedTo": "src/core/options.ts, src/core/cache.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/tokenizer.js",
+      "sha256": "70788cc36841a7be1c08f9e56b280552826a753a854b354a44fb399c6df49651",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "SentencePiece unigram tokenizer",
+      "portedTo": "src/core/tokenizer.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/binary.js",
+      "sha256": "f6b38f71380ce450861f6710df42c7d80e9f751df888f1cafbd18beb071b016a",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": ".npy parser (voices.bin parser dropped)",
+      "portedTo": "src/core/binary.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/player.js",
+      "sha256": "56295e5916e700a586a1d737474693c4d6fa6c05c19bac68bbe39e86a9ba1d6f",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "superseded by src/core/player.ts",
+      "portedTo": "(not ported)",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/stream-player.mjs",
+      "sha256": "8c26ea81225024d2a9946bc1712470f3a4d8c9161fabce2770b2fa537c3ad425",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "StreamPlayer, adaptiveStartSeconds, estimateSpeechSeconds, scheduledReplay",
+      "portedTo": "src/core/player.ts, src/core/audio.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/metrics.mjs",
+      "sha256": "82b877bd9acd9e7123ba2d15662f42ac57acdf937ab2bc21f8ef95e5f7a314f1",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "makeRecord, summarize, wavFromChunks",
+      "portedTo": "src/core/metrics.ts, src/core/audio.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/latency.mjs",
+      "sha256": "cba5f5ef6c12a04d339f5fbe128c9ebf326c275b791c2400b7e56d02f510db38",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "startLatency",
+      "portedTo": "src/core/metrics.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/make_dynamic_cache.py",
+      "sha256": "0005857eebcb12dbfb2e3df12028341ba37c6c78c07f54fb40ba2a9562a1049e",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "offline and in-memory graph patch",
+      "portedTo": "tools/make_dynamic_cache.py; src/core/onnx-patch.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/bench_worker.mjs",
+      "sha256": "013600f9d6a39a4e0b614ecc53eb93544bedb3a8c5a44e604cd864af7381b5f9",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "headless benchmark",
+      "portedTo": "bench/bench.mjs",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/stream-prompts.json",
+      "sha256": "567d756d297fa9a6b0c557ffebb7bd90c4f88bbd90b4f16b512d9228390c3570",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "benchmark prompts",
+      "portedTo": "bench/prompts.de.json",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/prepare_stock_preset.py",
+      "sha256": "e7c8e7c9b808b0e0ab177173827a5f5e5dc29ddc92cc6466a7c8dc088e348677",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "stock voice preparation; now a precision-independent embedding",
+      "portedTo": "tools/prepare-stock-voice.mjs (reimplemented)",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/test_stream_player.mjs",
+      "sha256": "d46e1c9b04d8561eded36d3869a67553b0f687219555c627cdc5d5b60f714af3",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "ported tests",
+      "portedTo": "test/player.test.mjs",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/test_metrics.mjs",
+      "sha256": "64d4654c0d580b50eb66398653be1f507249e30e8d3913bc852036a3ef54287f",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "ported tests",
+      "portedTo": "test/metrics.test.mjs",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/test_latency.mjs",
+      "sha256": "d3d8e231e733fd86bbe544ead22e53f17f4b1d5e637cab1a88d28d394a13b18a",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1)",
+      "role": "ported tests",
+      "portedTo": "test/metrics.test.mjs",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/test/runtime-options.test.js",
+      "sha256": "298c1697d469b39546544485bd6dbcdb9b06b2774fbd6bedf6302e0f7feefb04",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "ported tests",
+      "portedTo": "test/options.test.mjs",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/test/lifecycle.test.js",
+      "sha256": "b523ece1884e04f87e8d3fe677394fb331171bc157058acf606b862651064a3a",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "ported tests",
+      "portedTo": "test/client.test.mjs",
+      "license": "MIT"
+    },
+    {
+      "path": "browser-quant-v1/web/runtime/LICENSE",
+      "sha256": "2975f18f69d36cdd2bcee921c5ca53268dbfc8bcf381e13ef63e3136552fd32e",
+      "origin": "local working copy (Desktop/TheFinalAct/browser-quant-v1), derived from vlapky/pocket-tts-js@7d7a27423b0845eb0425c81a8aa5ed3f3d973eef",
+      "role": "vlapky MIT notice and CC-BY notice",
+      "portedTo": "LICENSE, THIRD_PARTY_NOTICES.md",
+      "license": "MIT"
+    },
+    {
+      "path": "codex-pocket-runtime-2026-10-20/PORTING.md",
+      "sha256": "e0764c8606e28618c9a6598a2934daa844a1f9505e58c8c3182334733f848140",
+      "origin": "Codex handoff snapshot of outputs/stage1/browser-quant-v1/web/runtime (copied 2026-10-20)",
+      "role": "porting notes",
+      "portedTo": "(guidance)",
+      "license": "MIT"
+    },
+    {
+      "path": "codex-pocket-runtime-2026-10-20/runtime/worker.js",
+      "sha256": "fd77e1de57c8bfc1b8b7f2574fab4dff9ff67e010a58875ea95425870bdefbe6",
+      "origin": "Codex handoff snapshot of outputs/stage1/browser-quant-v1/web/runtime (copied 2026-10-20)",
+      "role": "per-sentence chunks, per-chunk EOS tail, sentence scanner, textChunks diagnostics",
+      "portedTo": "src/core/text.ts, src/core/engine.ts",
+      "license": "MIT"
+    },
+    {
+      "path": "codex-pocket-runtime-2026-10-20/runtime/test/chunk-diagnostics.test.js",
+      "sha256": "80ac368cb15a6797369cd8d5ac063bcd9cfba042aad57c4bcb44b6eeb4c99c15",
+      "origin": "Codex handoff snapshot of outputs/stage1/browser-quant-v1/web/runtime (copied 2026-10-20)",
+      "role": "regression tests (rewritten against the engine, no VM source rewriting)",
+      "portedTo": "test/text.test.mjs, test/engine.test.mjs",
+      "license": "MIT"
+    },
+    {
+      "path": "codex-pocket-runtime-2026-10-20/runtime/index.js",
+      "sha256": "7f38547e59f7ceeb4c8ce5a98171e8b7d8ab9cd5b8d02c86de52c09343a008be",
+      "origin": "Codex handoff snapshot of outputs/stage1/browser-quant-v1/web/runtime (copied 2026-10-20)",
+      "role": "worker cache-busting",
+      "portedTo": "src/protocol.ts (build handshake instead of ?v= query)",
+      "license": "MIT"
+    }
+  ]
+}

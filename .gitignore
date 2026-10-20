@@ -1,0 +1,24 @@
+node_modules/
+dist/
+*.tgz
+.DS_Store
+
+# Model graphs, tokenizers, voice audio and embeddings are downloaded or
+# generated locally, never committed. models/README.md explains the layout.
+models/*
+!models/README.md
+*.onnx
+*.wav
+*.f32
+*.npy
+*.bin
+*.safetensors
+
+bench/results/
+examples/*/node_modules/
+examples/*/dist/
+consumers/*/node_modules/
+consumers/*/dist/
+consumers/*/package-lock.json
+__pycache__/
+.venv/

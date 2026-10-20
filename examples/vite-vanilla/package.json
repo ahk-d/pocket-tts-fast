@@ -1,0 +1,7 @@
+{
+  "name": "pocket-tts-example-vite-vanilla",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite", "build": "vite build" },
+  "devDependencies": { "vite": "^8.3.4" }
+}

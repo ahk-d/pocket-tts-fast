@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pocket TTS: plain HTML</title>
+</head>
+<body>
+  <!-- No bundler: import the package's dist/ directly (here from node_modules). -->
+  <textarea id="text" rows="3" cols="50">Guten Morgen! Wie geht es dir heute?</textarea><br>
+  <button id="speak">Speak</button> <span id="status"></span>
+  <script type="module">
+    import { PocketTTS } from "./node_modules/@flowent/pocket-tts/dist/index.js";
+
+    // Defaults: graphs from the pinned Hugging Face revision, onnxruntime-web 1.20.0 from jsDelivr.
+    // Stock voice files are self-hosted until they are published: point voiceBaseUrl at them.
+    const params = new URLSearchParams(location.search);
+    const tts = new PocketTTS({
+      modelBaseUrl: params.get("models") ?? undefined,
+      voiceBaseUrl: params.get("voices") ?? params.get("models") ?? undefined,
+      ortBaseUrl: params.get("ort") ?? undefined,
+    });
+    const status = (s) => (document.getElementById("status").textContent = s);
+    let voice;
+    document.getElementById("speak").onclick = async () => {
+      if (!tts.ready) await tts.load((e) => e.type === "progress" && status(`${e.label} ${Math.round((100 * e.loaded) / e.total)}%`));
+      voice ??= await tts.useVoice("alba");
+      status("speaking…");
+      const { metrics, played } = await tts.speak(document.getElementById("text").value, { voice });
+      await played;
+      status(`done: ${metrics.audioDuration.toFixed(1)} s of audio`);
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "two-sentences",
+    "text": "Heute gehen wir zusammen einen Kaffee trinken. Hast du am Nachmittag Zeit?"
+  },
+  {
+    "id": "short-question",
+    "text": "Wie spät ist es?"
+  },
+  {
+    "id": "question-then-exclamation",
+    "text": "Wie spät ist es? Um halb acht fährt der Zug, also beeil dich bitte!"
+  },
+  {
+    "id": "final-consonants",
+    "text": "Das ist mein Hund. Er heißt Max. Wir gehen jetzt."
+  },
+  {
+    "id": "one-word",
+    "text": "Danke."
+  },
+  {
+    "id": "greeting-intro-question",
+    "text": "Hallo! Ich heiße Anna und ich komme aus Berlin. Wie heißt du?"
+  },
+  {
+    "id": "quotes",
+    "text": "„Hallo!“, sagte sie. „Guten Morgen!“, antwortete er."
+  },
+  {
+    "id": "abbreviation-time",
+    "text": "Dr. Müller kommt um 3.15 Uhr. Wir warten."
+  },
+  {
+    "id": "date",
+    "text": "Ich komme am 3. Oktober. Passt dir das?"
+  },
+  {
+    "id": "long-sentence",
+    "text": "Nach dem Unterricht gehe ich in den Laden an der Ecke, weil ich Brot und Obst für das Abendessen brauche."
+  },
+  {
+    "id": "paragraph",
+    "text": "Am Samstag fahren wir früh mit dem Zug in eine kleine Stadt am See. Dort möchten wir zuerst über den Markt gehen, regionale Spezialitäten probieren und danach am Ufer spazieren. Wenn das Wetter hält, setzen wir uns draußen in ein Café und planen in Ruhe unsere nächste gemeinsame Reise."
+  },
+  {
+    "id": "apostrophe",
+    "text": "Wie geht’s dir? Mir geht’s gut."
+  },
+  {
+    "id": "dash",
+    "text": "Ich komme morgen – vielleicht auch später – vorbei."
+  },
+  {
+    "id": "ellipsis",
+    "text": "Na ja… mal sehen."
+  }
+]

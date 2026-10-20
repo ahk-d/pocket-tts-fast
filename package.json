@@ -1,0 +1,46 @@
+{
+  "name": "@flowent/pocket-tts",
+  "version": "0.1.0-alpha.0",
+  "description": "Fast, local Pocket TTS in the browser: Web Worker + onnxruntime-web WASM, dynamic KV caches (bit-identical audio), stock voices, optional local cloning, streaming playback.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./worker.js": "./dist/worker.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs && tsc -p tsconfig.json --emitDeclarationOnly",
+    "test": "npm run build && node --test \"test/*.test.mjs\"",
+    "test:types": "tsc -p tsconfig.json --noEmit && tsc -p test/types/tsconfig.json --noEmit",
+    "test:consumers": "node scripts/test-consumers.mjs",
+    "test:models": "node --test \"test/models/*.test.mjs\"",
+    "pack:check": "npm pack --dry-run --json",
+    "stock-voice": "node tools/prepare-stock-voice.mjs",
+    "verify-assets": "node tools/verify-assets.mjs",
+    "bench": "node bench/bench.mjs",
+    "serve": "node tools/serve.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "onnxruntime-web": "1.20.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": ["tts", "text-to-speech", "pocket-tts", "kyutai", "onnxruntime-web", "wasm", "web-worker", "german"]
+}

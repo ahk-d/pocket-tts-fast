@@ -1,0 +1,26 @@
+[
+  {
+    "id": "length_greeting",
+    "label": "Greeting · 2 words",
+    "text": "Guten Morgen.",
+    "words": 2
+  },
+  {
+    "id": "length_short",
+    "label": "Short · 7 words",
+    "text": "Heute üben wir gemeinsam ein paar Wörter.",
+    "words": 7
+  },
+  {
+    "id": "length_medium",
+    "label": "Medium · 20 words",
+    "text": "Nach dem Unterricht gehe ich in den Laden an der Ecke, weil ich Brot und Obst für das Abendessen brauche.",
+    "words": 20
+  },
+  {
+    "id": "length_paragraph",
+    "label": "Paragraph · 49 words",
+    "text": "Am Samstag fahren wir früh mit dem Zug in eine kleine Stadt am See. Dort möchten wir zuerst über den Markt gehen, regionale Spezialitäten probieren und danach am Ufer spazieren. Wenn das Wetter hält, setzen wir uns draußen in ein Café und planen in Ruhe unsere nächste gemeinsame Reise.",
+    "words": 49
+  }
+]
