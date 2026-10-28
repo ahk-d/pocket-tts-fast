@@ -7,7 +7,7 @@ the browser. Speech is generated on the user's device with onnxruntime-web
 * **Dynamic-cache optimization with matching PCM in tested cases.** The stock graphs
   copy a fixed 1000-slot KV cache, 49 MB, into and out of WASM on every frame.
   This runtime sizes the caches to what is actually used. The output is
-  bit-identical in the tested German/WASM cases. See [How it's faster](#how-its-faster).
+  bit-identical in the tested German and English WASM cases. See [How it's faster](#how-its-faster).
 * **Stock voice first.** The Alba voice loads as a 0.5 MB embedding, and no
   voice encoder is needed.
 * **Optional local cloning.** Clips are encoded on the device, once. The
@@ -26,7 +26,7 @@ the browser. Speech is generated on the user's device with onnxruntime-web
   `<script type="module">` and in bundlers that understand
   `new Worker(new URL(..., import.meta.url))` (Vite, webpack 5).
 
-Status: **alpha**. German is the only validated language, on browser WASM
+Status: **alpha**. German (default) and English are validated, on browser WASM
 (CPU) only. Not an official Kyutai project.
 
 ## Quick start
@@ -37,7 +37,8 @@ npm install pocket-tts-fast@alpha
 
 Copy `node_modules/pocket-tts-fast/voices/` into your app's static
 directory (for example, `public/voices/` in Vite). Serve the file at
-`/voices/alba-casual.emb.npy` and retain its attribution README. The embedding
+`/voices/alba-casual.emb.npy` (for English: `/voices/alba-casual.en.emb.npy`)
+and retain its attribution README. The embedding
 is included in npm; no separate upload or preparation script is needed.
 Set `voiceBaseUrl` to the directory **containing** `voices/`, not to `voices/`
 itself. For an app hosted at the domain root, use `/`:
@@ -56,6 +57,9 @@ await played;
 // Or just get the audio: mono Float32 chunks at 24 kHz.
 const chunks = [];
 await tts.generate("Bis später.", { voice, onChunk: (pcm) => chunks.push(pcm) });
+
+// English: same API, its own model files and voice embedding.
+const en = new PocketTTS({ language: "english", voiceBaseUrl: "/" });
 ```
 
 Generation is client-only: create `PocketTTS` in the browser (for example in an
@@ -91,7 +95,7 @@ as well as the model and voice licenses.
 
 Expert exports: `PocketTTSEngine` (the platform-agnostic generation loop),
 `createWebHost`, `makeCacheDynamic`, `StreamPlayer`, `adaptiveStartSeconds`,
-`GERMAN` (the asset manifest).
+`GERMAN`, `ENGLISH`, `MANIFESTS` (the asset manifests).
 
 ## Browser requirements
 
@@ -142,7 +146,7 @@ headroom, and grows them when needed. In the Mimi decoder, the passthrough
 * State passed into FlowLM per call: **49.15 MB → 9.44 MB**; into the decoder:
   **16.49 MB → 8.30 MB** (short prompts).
 * PCM is **bit-identical** to the fixed-cache path and to the original runtime
-  in every case tested (German, onnxruntime-web 1.20.0 WASM).
+  in every case tested (German and English, onnxruntime-web 1.20.0 WASM).
 * Speed: about **2× faster** in a labelled smoke run (RTF 1.6–1.8 → 0.84–0.89,
   live gaps 3–8 → 0). Setup: Intel Core i7-9750H, Node 22, 4 WASM threads,
   INT8-wide, stock voice, machine under load. Earlier development measurements
@@ -179,8 +183,14 @@ hook). Vue, Svelte and Next.js have not been tested.
 
 ## Known limitations
 
-* **German only.** Other language folders in the model repo are not in the
-  manifest and are not validated.
+* **German and English only.** English uses the `english_2026-04` bundle at
+  the same pinned revision. Other language folders in the model repo are not
+  in the manifest and are not validated.
+* **English: a trailing ellipsis ("I'm not sure…") can end loud.** The voice
+  keeps going past end-of-speech, so that sentence's last sound is cut. Whisper
+  still heard every word. English also keeps 3 frames after end-of-speech (5
+  for chunks of up to 4 words) instead of German's 1 (3), which adds up to
+  0.16 s of tail per sentence.
 * **Numbers are read as written.** "3.15 Uhr" is not expanded to words, and
   Whisper heard it as "3, 5 Uhr". Write numbers out if exact reading matters.
 * **Uppercase umlauts (Ä Ö Ü), é and € are not in the tokenizer vocabulary.**

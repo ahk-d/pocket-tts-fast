@@ -83,7 +83,42 @@ export const GERMAN: LanguageManifest = {
   ],
 };
 
-export const MANIFESTS: Record<string, LanguageManifest> = { german: GERMAN };
+// Same revision, folder onnx/english_2026-04. The graphs share German's layout and
+// state shapes, but every file (encoder included) has its own weights, so the
+// stock voice embedding is encoded separately.
+export const ENGLISH: LanguageManifest = {
+  id: `english@${REVISION.slice(0, 7)}`,
+  language: "english",
+  repo: "KevinAHM/pocket-tts-onnx",
+  revision: REVISION,
+  modelBaseUrl: `https://huggingface.co/KevinAHM/pocket-tts-onnx/resolve/${REVISION}/onnx/english_2026-04`,
+  sampleRate: 24000,
+  assets: [
+    { file: "bundle.json", sha256: "bab643150f437f37df080a710520ff39ed9ebd9a339f8ebdc739f7eddfc28b3f", bytes: 24381, role: "metadata", precision: "none", optional: false },
+    { file: "tokenizer.model", sha256: "d461765ae179566678c93091c5fa6f2984c31bbe990bf1aa62d92c64d91bc3f6", bytes: 59339, role: "tokenizer", precision: "none", optional: false },
+    { file: "bos_before_voice.npy", sha256: "f46edf4f7007b7ba4ea58831f49d003e59e167b4641c44bb3addfe9231a780b1", bytes: 4224, role: "bos", precision: "none", optional: false },
+    { file: "text_conditioner.onnx", sha256: "4ecee995fb69f85c7a7493d11f7b5ee15d9950facc7ab3f5c9c49ef1e03847bb", bytes: 16388344, role: "conditioner", precision: "fp32", optional: false },
+    { file: "mimi_encoder.onnx", sha256: "853e2ca623b8782d94c3745ec6133bfdff7ce33d9b11128bd29ea03f28d76e3d", bytes: 39768446, role: "encoder", precision: "fp32", optional: true },
+    { file: "flow_lm_main.onnx", sha256: "6d18315e2c33ca3e3aa4a4e3dca22f56d007fd823127e24948b37695bf54190f", bytes: 302742149, role: "flow-main", precision: "fp32", optional: false },
+    { file: "flow_lm_main_int8.onnx", sha256: "f9bd8106b79a0192c1c43399ab938fb24900a95c1c599870d75a884e99000116", bytes: 76341079, role: "flow-main", precision: "int8", optional: false },
+    { file: "flow_lm_flow.onnx", sha256: "085d239f68897e28fb06e95c743738ad8b8c092ee6dc55f5491313e81ff08062", bytes: 39097095, role: "flow-head", precision: "fp32", optional: false },
+    { file: "flow_lm_flow_int8.onnx", sha256: "3dd781ee5abee9e195320bf0106bebd6372a852b3b36352524ee78b40554635d", bytes: 9962530, role: "flow-head", precision: "int8", optional: false },
+    { file: "mimi_decoder.onnx", sha256: "86f038caa02a96a0ff9c25526a0ff43a4906c418197ed72d3e30f720ac7ce802", bytes: 41471926, role: "decoder", precision: "fp32", optional: false },
+    { file: "mimi_decoder_int8.onnx", sha256: "3630450a3297a101792a6ac66619ebc70ab916b265e6220c2afaef8b1673f925", bytes: 22684077, role: "decoder", precision: "int8", optional: false },
+  ],
+  precisions: GERMAN.precisions,
+  voices: [
+    {
+      ...GERMAN.voices[0],
+      file: "voices/alba-casual.en.emb.npy",
+      // Output of tools/prepare-stock-voice.mjs --language english.
+      sha256: "5094e4009bc23a6738a024e73b41bb459711d767c8ee45f1fdd39ca5613d147b",
+      bytes: 512128,
+    },
+  ],
+};
+
+export const MANIFESTS: Record<string, LanguageManifest> = { german: GERMAN, english: ENGLISH };
 
 export function assetFor(manifest: LanguageManifest, file: string): Asset | undefined {
   return manifest.assets.find((a) => a.file === file);

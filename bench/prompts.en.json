@@ -1,0 +1,62 @@
+[
+  {
+    "id": "p01_thanks",
+    "label": "1 word",
+    "text": "Thanks.",
+    "words": 1
+  },
+  {
+    "id": "p02_station",
+    "label": "Question",
+    "text": "Where is the train station?",
+    "words": 5
+  },
+  {
+    "id": "p03_coffee",
+    "label": "Order",
+    "text": "I would like a coffee with milk, please.",
+    "words": 8
+  },
+  {
+    "id": "p04_meeting",
+    "label": "Phone",
+    "text": "Can we move the meeting to next Tuesday at ten o'clock?",
+    "words": 11
+  },
+  {
+    "id": "p05_weather",
+    "label": "Two sentences",
+    "text": "It is raining all day today. Tomorrow the sun is finally supposed to come out again.",
+    "words": 16
+  },
+  {
+    "id": "p06_doctor",
+    "label": "Doctor",
+    "text": "Since yesterday I have had a bad headache and a slight fever, so I would rather stay at home today.",
+    "words": 20
+  },
+  {
+    "id": "p07_numbers",
+    "label": "Numbers",
+    "text": "The apartment costs nine hundred and fifty euros a month, and the deposit is three months' rent.",
+    "words": 17
+  },
+  {
+    "id": "p08_work",
+    "label": "Work",
+    "text": "In my new job I work in a team with colleagues from five countries, and we mostly speak English, but during lunch we practice German together.",
+    "words": 26
+  },
+  {
+    "id": "p09_trip",
+    "label": "Story",
+    "text": "Last summer we cycled from Munich all the way to Lake Garda. The route over the Alps was exhausting, but the view was really worth it. In the evenings we stayed in small guesthouses along the way.",
+    "words": 37
+  },
+  {
+    "id": "p10_learning",
+    "label": "Paragraph",
+    "text": "When you learn a new language, it is important to practice a little every day. You do not have to sit at your desk for hours. Even ten minutes of speaking in the morning helps a lot. Listen to podcasts, read short articles, and do not be afraid of mistakes, because that is exactly where you learn the most.",
+    "words": 59
+  }
+]

@@ -39,15 +39,22 @@ export function requiredModelStems(voiceCloning = true): ModelStem[] {
   return [...(voiceCloning ? (["mimi_encoder"] as ModelStem[]) : []), "text_conditioner", "flow_lm_main", "flow_lm_flow", "mimi_decoder"];
 }
 
-export function requireGermanBos(
+/**
+ * A bundle with `insert_bos_before_voice` (German and English at the pinned
+ * revision) must have its BOS asset; returns whether BOS will be inserted.
+ */
+export function requireBos(
   metadata: { language?: string; insert_bos_before_voice?: boolean },
   bos: unknown,
 ): boolean {
-  if (metadata.language === "german" && metadata.insert_bos_before_voice && !bos) {
-    throw new Error("German bundle requires bos_before_voice.npy, but the BOS asset is missing or could not be loaded.");
+  if (metadata.insert_bos_before_voice && !bos) {
+    throw new Error(`${metadata.language ?? "This"} bundle requires bos_before_voice.npy, but the BOS asset is missing or could not be loaded.`);
   }
-  return Boolean(metadata.language === "german" && metadata.insert_bos_before_voice && bos);
+  return Boolean(metadata.insert_bos_before_voice && bos);
 }
+
+/** @deprecated Use requireBos(); it now checks every language. */
+export const requireGermanBos = requireBos;
 
 /** mulberry32: small, fast and identical on every JS engine. */
 export function createSeededRandom(seed: number): () => number {

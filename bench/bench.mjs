@@ -2,7 +2,7 @@
 // on the onnxruntime-web WASM build inside Node. Adapted from
 // browser-quant-v1/bench_worker.mjs. See bench/protocol.md.
 //
-//   node bench/bench.mjs [--models models] [--precision int8-wide] [--threads 4]
+//   node bench/bench.mjs [--language german|english] [--models models] [--precision int8-wide] [--threads 4]
 //        [--cache dynamic|fixed|both] [--voice alba | --reference clip.wav|.f32]
 //        [--frames 3] [--prompts all|id,...] [--repeat 5] [--json out.json]
 //        [--allow-load]   # run even if the machine is busy (labelled "stress")
@@ -39,7 +39,7 @@ if (busy && !args["allow-load"]) {
   process.exit(2);
 }
 
-let prompts = JSON.parse(fs.readFileSync(path.join(ROOT, "bench/prompts.de.json"), "utf8"));
+let prompts = JSON.parse(fs.readFileSync(path.join(ROOT, `bench/prompts.${language === "german" ? "de" : "en"}.json`), "utf8"));
 if (args.prompts && args.prompts !== "all") prompts = prompts.filter((p) => String(args.prompts).split(",").some((s) => p.id.includes(s)));
 
 ort.env.wasm.numThreads = threads;

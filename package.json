@@ -15,7 +15,8 @@
     },
     "./worker.js": "./dist/worker.js",
     "./package.json": "./package.json",
-    "./voices/alba-casual.emb.npy": "./voices/alba-casual.emb.npy"
+    "./voices/alba-casual.emb.npy": "./voices/alba-casual.emb.npy",
+    "./voices/alba-casual.en.emb.npy": "./voices/alba-casual.en.emb.npy"
   },
   "files": [
     "dist",

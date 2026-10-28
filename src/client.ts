@@ -21,7 +21,7 @@ export const ORT_VERSION = "1.20.0";
 export const DEFAULT_ORT_BASE_URL = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/`;
 
 export interface PocketTTSOptions {
-  /** Language bundle. Only "german" is validated in this release. */
+  /** Language bundle: "german" (default) or "english". */
   language?: string;
   /** "int8-wide" (default, smallest download), "int8-core" or "fp32". */
   precision?: Precision;

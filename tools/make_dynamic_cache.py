@@ -20,7 +20,7 @@ Verify with `npm run test:models` or `node bench/bench.mjs --dynamic prebuilt`
 (PCM hashes must match the fixed-cache run).
 
     pip install onnx
-    python3 tools/make_dynamic_cache.py [--models models/german]
+    python3 tools/make_dynamic_cache.py [--models models/german|models/english]
 """
 import argparse
 import collections

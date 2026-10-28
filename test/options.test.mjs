@@ -5,6 +5,7 @@ import {
   PRECISION_STEMS,
   modelFilename,
   requiredModelStems,
+  requireBos,
   requireGermanBos,
   createSeededRandom,
   cacheCapacityFor,
@@ -47,12 +48,14 @@ test("fixed-seed noise is repeatable and non-degenerate", () => {
   assert.ok(a.every((v) => v > 0 && v < 1));
 });
 
-test("requires German BOS only when the bundle declares insertion", () => {
+test("requires BOS whenever the bundle declares insertion", () => {
   const german = { language: "german", insert_bos_before_voice: true };
-  assert.throws(() => requireGermanBos(german, null), /German.*BOS/i);
-  assert.equal(requireGermanBos(german, { data: new Float32Array([1]), shape: [1, 1, 1] }), true);
-  assert.equal(requireGermanBos({ language: "english", insert_bos_before_voice: true }, null), false);
-  assert.equal(requireGermanBos({ language: "german", insert_bos_before_voice: false }, null), false);
+  const english = { language: "english_2026-04", insert_bos_before_voice: true };
+  assert.throws(() => requireBos(german, null), /german.*BOS/i);
+  assert.throws(() => requireBos(english, null), /english.*BOS/i);
+  assert.equal(requireBos(english, { data: new Float32Array([1]), shape: [1, 1, 1] }), true);
+  assert.equal(requireBos({ language: "german", insert_bos_before_voice: false }, null), false);
+  assert.equal(requireGermanBos, requireBos, "deprecated alias");
 });
 
 test("stock-voice use excludes the reference encoder", () => {

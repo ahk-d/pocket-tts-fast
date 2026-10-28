@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- English (`language: "english"`): the `english_2026-04` bundle at the same pinned
+  revision, SHA-256 checked, with its own Alba embedding (`voices/alba-casual.en.emb.npy`,
+  encoded with the English encoder). German stays the default.
+- Sentence rules per language: English abbreviations (Mr., Dr., e.g., i.e.) and no
+  German ordinal-date rule. English keeps 3 frames after end-of-speech (5 for <= 4 words);
+  with 1, endings such as "afternoon?" were cut.
+- `requireBos()` checks BOS for every bundle that declares it; `requireGermanBos` stays as
+  a deprecated alias.
+- Tools, model tests and the bench take `--language` / `POCKET_TTS_LANGUAGE`; English
+  endings corpus `test/models/endings.en.json` and bench phrases `bench/prompts.en.json`.
+
 ## 0.1.0-alpha.0 (2026-10-20)
 
 First extraction of the browser runtime into its own package.

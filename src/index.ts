@@ -6,7 +6,7 @@ import { wavFromChunks } from "./core/index.js";
 export { PocketTTS, decodeAudioFile, DEFAULT_ORT_BASE_URL, ORT_VERSION } from "./client.js";
 export { BUILD_ID } from "./protocol.js";
 export type { PocketTTSOptions, GenerateRequest, SpeakRequest, SpeakResult, PlaybackMode, LoadEvent, ReadyInfo } from "./client.js";
-export { GERMAN, MANIFESTS, filesFor, downloadBytes } from "./manifest.js";
+export { GERMAN, ENGLISH, MANIFESTS, filesFor, downloadBytes } from "./manifest.js";
 export type { Precision, Asset, StockVoice, LanguageManifest } from "./manifest.js";
 export { createWebHost, cacheNameFor, pruneOldCaches, sha256Hex, AssetIntegrityError } from "./host.js";
 export type { OrtWebModule, ProgressEvent, WebHostOptions } from "./host.js";
@@ -35,6 +35,7 @@ export {
   PRECISION_STEMS,
   modelFilename,
   requiredModelStems,
+  requireBos,
   requireGermanBos,
   createSeededRandom,
   validateEmbedding,

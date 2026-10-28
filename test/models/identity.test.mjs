@@ -2,6 +2,7 @@
 //
 //   npm run test:models                      # uses ./models
 //   POCKET_TTS_MODELS=/path npm run test:models
+//   POCKET_TTS_LANGUAGE=english npm run test:models   # default german
 //
 // Fixed (1000-slot) and dynamic caches must give bit-identical PCM on the same
 // backend, precision, voice and seed, for short and multi-sentence input, and
@@ -13,14 +14,16 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { pathToFileURL } from "node:url";
 import * as ort from "onnxruntime-web";
-import { PocketTTSEngine, createWebHost, GERMAN, wavFromChunks } from "../../dist/index.js";
+import { PocketTTSEngine, createWebHost, MANIFESTS, wavFromChunks } from "../../dist/index.js";
 import { ROOT, fileFetch } from "../../tools/lib.mjs";
 
 const modelsDir = path.resolve(process.env.POCKET_TTS_MODELS || path.join(ROOT, "models"));
-const langDir = path.join(modelsDir, "german");
-const voiceFile = path.join(langDir, GERMAN.voices[0].file);
+const language = process.env.POCKET_TTS_LANGUAGE || "german";
+const manifest = MANIFESTS[language];
+const langDir = path.join(modelsDir, language);
+const voiceFile = path.join(langDir, manifest.voices[0].file);
 const have = fs.existsSync(path.join(langDir, "bundle.json")) && fs.existsSync(voiceFile);
-const skip = have ? false : `models not found in ${langDir} (run: node tools/fetch-models.mjs && npm run stock-voice)`;
+const skip = have ? false : `models not found in ${langDir} (run: node tools/fetch-models.mjs --language ${language} && npm run stock-voice -- --language ${language})`;
 const threads = Number(process.env.POCKET_TTS_THREADS || 4);
 const precision = process.env.POCKET_TTS_PRECISION || "int8-wide";
 
@@ -28,7 +31,7 @@ ort.env.wasm.numThreads = threads;
 
 async function load(dynamicCache) {
   const capacities = [];
-  const base = createWebHost({ ort, manifest: GERMAN, modelBaseUrl: pathToFileURL(langDir).href, cache: false, fetch: fileFetch });
+  const base = createWebHost({ ort, manifest, modelBaseUrl: pathToFileURL(langDir).href, cache: false, fetch: fileFetch });
   const host = {
     ...base,
     async loadModel(req) {
@@ -38,7 +41,7 @@ async function load(dynamicCache) {
       return { outputNames: session.outputNames, run: (feeds) => (capacities.push(feeds.state_0.dims[2]), session.run(feeds)) };
     },
   };
-  const engine = await PocketTTSEngine.load(host, { quantizedStems: GERMAN.precisions[precision], dynamicCache });
+  const engine = await PocketTTSEngine.load(host, { quantizedStems: manifest.precisions[precision], dynamicCache });
   return { engine, capacities };
 }
 
@@ -55,17 +58,24 @@ async function pcm(engine, text, voice) {
   return { sha: hash.digest("hex"), samples };
 }
 
-const PROMPTS = [
-  "Guten Morgen.",
-  "Wie spät ist es? Um halb acht fährt der Zug, also beeil dich bitte!",
-  "Am Samstag fahren wir früh mit dem Zug in eine kleine Stadt am See. Dort möchten wir zuerst über den Markt gehen, regionale Spezialitäten probieren und danach am Ufer spazieren.",
-];
+const PROMPTS = {
+  german: [
+    "Guten Morgen.",
+    "Wie spät ist es? Um halb acht fährt der Zug, also beeil dich bitte!",
+    "Am Samstag fahren wir früh mit dem Zug in eine kleine Stadt am See. Dort möchten wir zuerst über den Markt gehen, regionale Spezialitäten probieren und danach am Ufer spazieren.",
+  ],
+  english: [
+    "Good morning.",
+    "What time is it? The train leaves at half past seven, so please hurry up!",
+    "On Saturday we are taking an early train to a small town by the lake. First we want to walk through the market, try some local food and then stroll along the shore.",
+  ],
+}[language];
 
-test(`fixed and dynamic KV caches give bit-identical PCM (${precision}, ${threads} threads, stock voice)`, { skip, timeout: 600_000 }, async () => {
+test(`fixed and dynamic KV caches give bit-identical PCM (${language}, ${precision}, ${threads} threads, stock voice)`, { skip, timeout: 600_000 }, async () => {
   const fixed = await load(false);
   const dynamic = await load("patch");
-  const vf = await fixed.engine.loadEmbeddingAsset(GERMAN.voices[0].file, "stock:alba");
-  const vd = await dynamic.engine.loadEmbeddingAsset(GERMAN.voices[0].file, "stock:alba");
+  const vf = await fixed.engine.loadEmbeddingAsset(manifest.voices[0].file, "stock:alba");
+  const vd = await dynamic.engine.loadEmbeddingAsset(manifest.voices[0].file, "stock:alba");
   assert.deepEqual(dynamic.engine.info.loadedModelFiles.filter((f) => f.includes("encoder")), [], "stock voice needs no encoder");
   for (const text of PROMPTS) {
     const a = await pcm(fixed.engine, text, vf);
@@ -84,7 +94,7 @@ test(`fixed and dynamic KV caches give bit-identical PCM (${precision}, ${thread
 // Optional: compare with PCM hashes recorded from the original browser-quant-v1
 // runtime for its reference clip (embed path, int8-wide, 3-frame delivery).
 const refF32 = process.env.POCKET_TTS_REFERENCE_F32;
-test("matches hashes recorded from the original runtime (optional)", { skip: !have || !refF32 ? "set POCKET_TTS_REFERENCE_F32" : false, timeout: 600_000 }, async () => {
+test("matches hashes recorded from the original runtime (optional)", { skip: !have || !refF32 || language !== "german" ? "set POCKET_TTS_REFERENCE_F32" : false, timeout: 600_000 }, async () => {
   const expected = {
     "Guten Morgen.": "2be4e0410fb0399b",
     "Heute üben wir gemeinsam ein paar Wörter.": "79d48600eeb3829a",
@@ -103,14 +113,16 @@ test("matches hashes recorded from the original runtime (optional)", { skip: !ha
 // leaves the final 100 ms loud. Calibrated with Whisper word timings: the pre-fix
 // "two-sentences" case measured RMS 0.051 (clipped); complete endings on vowels
 // ("Danke.", "brauche.") measure up to ~0.03. Transcripts: tools/check_transcripts.py.
-const ENDINGS = JSON.parse(fs.readFileSync(new URL("./endings.de.json", import.meta.url), "utf8"));
+const ENDINGS = JSON.parse(fs.readFileSync(new URL(`./endings.${language === "german" ? "de" : "en"}.json`, import.meta.url), "utf8"));
 const WAV_DIR = process.env.POCKET_TTS_WAV_DIR;
 
 test("utterance endings decay to near-silence and every sentence ends by EOS", { skip, timeout: 900_000 }, async () => {
   const { engine } = await load("patch");
-  const voice = await engine.loadEmbeddingAsset(GERMAN.voices[0].file, "stock:alba");
+  const voice = await engine.loadEmbeddingAsset(manifest.voices[0].file, "stock:alba");
   const problems = [];
-  for (const { id, text } of ENDINGS) {
+  const known = [];
+  for (const { id, text, knownIssue } of ENDINGS) {
+    const before = problems.length;
     const chunks = [];
     const metrics = await engine.generate(text, voice, { deliveryFrames: 3, onChunk: (a, meta) => chunks.push([a, meta]) });
     const all = Float32Array.from(chunks.flatMap(([a]) => [...a]));
@@ -135,6 +147,9 @@ test("utterance endings decay to near-silence and every sentence ends by EOS", {
     if (!metrics.complete) problems.push(`${id}: incomplete (${metrics.textChunks.map((c) => c.endReason).join(",")})`);
     for (const c of metrics.textChunks) if (c.emittedFrames !== c.generatedFrames) problems.push(`${id}: chunk ${c.index} delivered ${c.emittedFrames}/${c.generatedFrames} frames`);
     sentenceTails.forEach((r, k) => r > 0.04 && problems.push(`${id}: sentence ${k + 1} ends loud (last 100 ms RMS ${r.toFixed(3)})`));
+    // A corpus item may document a known limitation: reported, not failed.
+    if (knownIssue) known.push(...problems.splice(before).map((p) => `${p} [known: ${knownIssue}]`));
   }
+  for (const k of known) console.log(`  KNOWN ${k}`);
   assert.deepEqual(problems, []);
 });

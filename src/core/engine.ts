@@ -15,7 +15,7 @@ import {
   DYNAMIC_CACHE_STEMS,
   modelFilename,
   PRECISION_STEMS,
-  requireGermanBos,
+  requireBos,
   requiredModelStems,
   type ModelStem,
 } from "./options.js";
@@ -288,7 +288,7 @@ export class PocketTTSEngine {
         /* optional unless the bundle requires it (checked below) */
       }
     }
-    requireGermanBos(this.bundle, this.bos);
+    requireBos(this.bundle, this.bos);
     this.flowCacheNames = this.bundle.flow_lm_state_manifest.filter((e) => e.key === "cache").map((e) => e.input_name);
     const step = this.bundle.flow_lm_state_manifest.find((e) => e.key === "step");
     if (!step) throw new Error("bundle.json flow_lm_state_manifest has no step entry");

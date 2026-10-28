@@ -103,3 +103,17 @@ test("UTF-8 helpers match TextEncoder/TextDecoder (React Native has neither ever
   const bad = Uint8Array.from([0x61, 0xc3, 0x28, 0xe2, 0x82, 0x62]);
   assert.equal(utf8Decode(bad), new TextDecoder().decode(bad));
 });
+
+test("English rules: English abbreviations, no German date rule", () => {
+  const en = "english_2026-04";
+  assert.deepEqual(splitTextIntoSentences("Mr. Smith met Dr. Jones. They talked.", en), ["Mr. Smith met Dr. Jones.", "They talked."]);
+  assert.deepEqual(splitTextIntoSentences("Bring fruit, e.g. apples. Or i.e. pears. Fine.", en), ["Bring fruit, e.g. apples.", "Or i.e. pears.", "Fine."]);
+  assert.deepEqual(splitTextIntoSentences("We moved in 2019. August was hot.", en), ["We moved in 2019.", "August was hot."]);
+  assert.deepEqual(splitTextIntoSentences("I said no. We left etc. Then home.", en), ["I said no.", "We left etc.", "Then home."]);
+  // German rules are still the default.
+  assert.deepEqual(splitTextIntoSentences("Ich komme am 3. Oktober."), ["Ich komme am 3. Oktober."]);
+  assert.deepEqual(splitIntoChunks("It costs 3.50 dollars. Okay?", wordTokenizer(), { language: en }).chunks, ["It costs 3.50 dollars.", "Okay?"]);
+  assert.equal(framesAfterEosForWordCount(12, { language: en }), 3, "English endings need 3 tail frames");
+  assert.equal(framesAfterEosForWordCount(1, { language: en }), 5, "short English chunks need 5");
+  assert.equal(framesAfterEosForWordCount(12), 1, "German default unchanged");
+});

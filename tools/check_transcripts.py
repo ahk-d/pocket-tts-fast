@@ -4,7 +4,7 @@ naturalness score.
 
     pip install faster-whisper
     POCKET_TTS_WAV_DIR=out npm run test:models      # writes out/<id>.wav
-    python3 tools/check_transcripts.py out test/models/endings.de.json [--model small]
+    python3 tools/check_transcripts.py out test/models/endings.de.json [--model small] [--language de|en]
 
 Exit code 1 if a last word is missing or word recall < --min-recall.
 Numbers ("3.15") are compared loosely: Pocket TTS does not normalize digits and
@@ -18,10 +18,11 @@ import unicodedata
 from pathlib import Path
 
 
-def words(text):
+def words(text, lang="de"):
     text = unicodedata.normalize("NFC", text.lower())
     text = re.sub(r"[„“”«»‚‘\"]", "", text).replace("’", "'")
-    text = re.sub(r"(\w)'s\b", r"\1 es", text)  # "geht's" is transcribed as "geht es"
+    if lang == "de":
+        text = re.sub(r"(\w)'s\b", r"\1 es", text)  # "geht's" is transcribed as "geht es"
     return [w for w in re.findall(r"[\w']+", text) if not w.isdigit()]
 
 
@@ -30,6 +31,7 @@ def main():
     ap.add_argument("wav_dir", type=Path)
     ap.add_argument("corpus", type=Path)
     ap.add_argument("--model", default="small")
+    ap.add_argument("--language", default="de")
     ap.add_argument("--min-recall", type=float, default=0.8)
     args = ap.parse_args()
     from faster_whisper import WhisperModel
@@ -41,9 +43,9 @@ def main():
         if not wav.exists():
             print(f"skip   {item['id']} (no wav)")
             continue
-        segments, _ = model.transcribe(str(wav), language="de", beam_size=5, word_timestamps=True)
+        segments, _ = model.transcribe(str(wav), language=args.language, beam_size=5, word_timestamps=True)
         heard_text = " ".join(s.text.strip() for s in segments)
-        expected, heard = words(item["text"]), words(heard_text)
+        expected, heard = words(item["text"], args.language), words(heard_text, args.language)
         pool = list(heard)
         hits = 0
         for w in expected:

@@ -1,0 +1,16 @@
+[
+  {"id": "two-sentences", "text": "Let's grab a coffee together today. Are you free this afternoon?"},
+  {"id": "short-question", "text": "What time is it?"},
+  {"id": "question-then-exclamation", "text": "What time is it? The train leaves at half past seven, so please hurry up!"},
+  {"id": "final-consonants", "text": "This is my dog. His name is Max. We are leaving now."},
+  {"id": "one-word", "text": "Thanks."},
+  {"id": "greeting-intro-question", "text": "Hello! My name is Anna and I'm from Boston. What's your name?"},
+  {"id": "quotes", "text": "“Hello!” she said. “Good morning!” he answered."},
+  {"id": "abbreviations", "text": "Mr. Brown and Dr. Lee bought fruit, e.g. apples and pears."},
+  {"id": "contractions", "text": "I can't come tonight, but we'll see each other tomorrow, won't we?"},
+  {"id": "list-commas", "text": "We need bread, milk, eggs, cheese and a few tomatoes."},
+  {"id": "long-sentence", "text": "When you learn a new language, it helps to practice a little every day, even if it is only ten minutes."},
+  {"id": "dash-ellipsis", "text": "Well — I'm not sure… maybe next week.", "knownIssue": "a trailing ellipsis keeps the voice going past end-of-speech, so that sentence ends loud"},
+  {"id": "ends-in-s", "text": "She always forgets her keys."},
+  {"id": "ends-in-t", "text": "That was the best night."}
+]
