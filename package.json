@@ -36,6 +36,7 @@
     "verify-assets": "node tools/verify-assets.mjs",
     "bench": "node bench/bench.mjs",
     "serve": "node tools/serve.mjs",
+    "build:site": "npm run build && node scripts/build-site.mjs",
     "prepack": "npm run build"
   },
   "devDependencies": {

@@ -56,3 +56,9 @@ https://huggingface.co/kyutai/pocket-tts
 https://huggingface.co/KevinAHM/pocket-tts-onnx
 
 This package does not waive those conditions or imply endorsement.
+
+## coi-serviceworker (demo site only)
+
+`demo/compare/coi-serviceworker.min.js` is coi-serviceworker v0.1.7 by Guido
+Zuidhof and contributors, MIT License, https://github.com/gzuidhof/coi-serviceworker.
+It is used only by the comparison page and is not part of the npm package.

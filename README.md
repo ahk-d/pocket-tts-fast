@@ -178,6 +178,20 @@ npm run serve            # demo at http://localhost:8787 (cross-origin isolated)
 node bench/bench.mjs --cache both --repeat 5                 # see bench/protocol.md
 ```
 
+### Comparison page (GitHub Pages or Vercel)
+
+`demo/compare/` runs the same phrases with the fixed and the dynamic cache in
+one browser tab and reports speed, first audio and whether the PCM matches.
+`npm run build:site` builds it into `site/` (comparison at the root, full demo
+at `demo/`) with relative paths, the pinned onnxruntime-web files and the stock
+voices; model graphs load from the pinned Hugging Face revision.
+
+* **GitHub Pages:** `.github/workflows/pages.yml` deploys on every push to
+  `main` (one-time: Settings → Pages → Source: GitHub Actions). Pages cannot set
+  headers, so [coi-serviceworker](https://github.com/gzuidhof/coi-serviceworker)
+  (MIT) adds the cross-origin isolation headers after one automatic reload.
+* **Vercel:** `vercel.json` sets the headers directly; import the repository.
+
 Examples: [`examples/vanilla`](https://github.com/ahk-d/pocket-tts-fast/blob/main/examples/vanilla) (no bundler),
 [`examples/vite-vanilla`](https://github.com/ahk-d/pocket-tts-fast/blob/main/examples/vite-vanilla),
 [`examples/react-vite`](https://github.com/ahk-d/pocket-tts-fast/blob/main/examples/react-vite) (includes a small `usePocketTTS`
