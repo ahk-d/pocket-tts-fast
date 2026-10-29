@@ -145,9 +145,11 @@ headroom, and grows them when needed. In the Mimi decoder, the passthrough
 
 * State passed into FlowLM per call: **49.15 MB → 9.44 MB**; into the decoder:
   **16.49 MB → 8.30 MB** (short prompts).
-* PCM is **bit-identical** to the fixed-cache path and to the original runtime
-  in every case tested (German and English, onnxruntime-web 1.20.0 WASM).
-* Speed: about **2× faster** in a labelled smoke run (RTF 1.6–1.8 → 0.84–0.89,
+* PCM is **bit-identical** to the fixed-cache path in every case tested
+  (German and English, onnxruntime-web 1.20.0 WASM), and to the original
+  runtime in the German reference cases.
+* Speed (German only; English is not benchmarked yet): about **2× faster** in
+  a labelled smoke run (RTF 1.6–1.8 → 0.84–0.89,
   live gaps 3–8 → 0). Setup: Intel Core i7-9750H, Node 22, 4 WASM threads,
   INT8-wide, stock voice, machine under load. Earlier development measurements
   on the same machine: RTF ≈ 1.1 → 0.6 in Node with 4 threads, and 6.6–10.6 → 1.2
@@ -165,7 +167,7 @@ are in the GitHub repository, not the npm tarball.
 git clone https://github.com/ahk-d/pocket-tts-fast.git
 cd pocket-tts-fast
 npm install
-npm test                 # build + 85 unit tests (no models needed)
+npm test                 # build + 86 unit tests (no models needed)
 npm run test:types       # public .d.ts against a usage file
 npm run test:consumers   # npm pack → install the tarball into vanilla / Vite / React-Vite examples → build
 node tools/fetch-models.mjs --precision int8-wide --cloning   # pinned + verified download into ./models
