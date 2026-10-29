@@ -15,14 +15,15 @@ const run = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, stdio: ["ignore",
 const work = fs.mkdtempSync(path.join(process.env.CONSUMER_TMP || os.tmpdir(), "pocket-tts-consumers-"));
 const packed = JSON.parse(run("npm", ["pack", "--json", "--pack-destination", work], root))[0];
 const tarball = path.join(work, packed.filename);
-const { GERMAN } = await import(path.join(root, "dist/index.js"));
-const stockVoice = GERMAN.voices.find((voice) => voice.id === "alba");
+const { GERMAN, ENGLISH } = await import(path.join(root, "dist/index.js"));
+const stockVoices = [GERMAN, ENGLISH].flatMap((language) => language.voices);
+const voiceFiles = stockVoices.map((voice) => voice.file);
 const files = packed.files.map((f) => f.path).sort();
 console.log(`packed ${packed.filename}: ${files.length} files, ${(packed.size / 1024).toFixed(0)} kB`);
-for (const required of ["dist/index.js", "dist/worker.js", "dist/index.d.ts", "LICENSE", "README.md", "THIRD_PARTY_NOTICES.md", "package.json", stockVoice.file, "voices/README.md"]) {
+for (const required of ["dist/index.js", "dist/worker.js", "dist/index.d.ts", "LICENSE", "README.md", "THIRD_PARTY_NOTICES.md", "package.json", ...voiceFiles, "voices/README.md"]) {
   if (!files.includes(required)) throw new Error(`tarball is missing ${required}`);
 }
-const leaked = files.filter((f) => f !== stockVoice.file && f !== "voices/README.md" && (!/^(dist\/|package\.json$|README\.md$|LICENSE$|THIRD_PARTY_NOTICES\.md$)/.test(f) || /\.(onnx|npy|wav|bin)$/.test(f)));
+const leaked = files.filter((f) => !voiceFiles.includes(f) && f !== "voices/README.md" && (!/^(dist\/|package\.json$|README\.md$|LICENSE$|THIRD_PARTY_NOTICES\.md$)/.test(f) || /\.(onnx|npy|wav|bin)$/.test(f)));
 if (leaked.length) throw new Error(`unexpected files in tarball: ${leaked.join(", ")}`);
 
 const results = [];
@@ -32,8 +33,10 @@ for (const name of ["vanilla", "vite-vanilla", "react-vite"]) {
   if (!fs.existsSync(path.join(dir, "package.json"))) fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify({ name: `consumer-${name}`, private: true, type: "module" }));
   run("npm", ["install", "--no-audit", "--no-fund", "--no-package-lock", tarball], dir);
   const installed = fs.realpathSync(path.join(dir, "node_modules", packageName));
-  const voiceBytes = fs.readFileSync(path.join(installed, stockVoice.file));
-  if (voiceBytes.length !== stockVoice.bytes || createHash("sha256").update(voiceBytes).digest("hex") !== stockVoice.sha256) throw new Error(`${name}: packaged stock voice fails manifest verification`);
+  for (const voice of stockVoices) {
+    const voiceBytes = fs.readFileSync(path.join(installed, voice.file));
+    if (voiceBytes.length !== voice.bytes || createHash("sha256").update(voiceBytes).digest("hex") !== voice.sha256) throw new Error(`${name}: packaged stock voice ${voice.file} fails manifest verification`);
+  }
   if (installed.startsWith(root)) throw new Error(`${name}: package resolved to the source tree (link), not the tarball`);
   // Follow the consumer README: copy voices/ into the application static root.
   const usesVite = fs.existsSync(path.join(dir, "vite.config.js"));
@@ -41,8 +44,10 @@ for (const name of ["vanilla", "vite-vanilla", "react-vite"]) {
   fs.cpSync(path.join(installed, "voices"), path.join(staticRoot, "voices"), { recursive: true });
   if (usesVite) {
     run("npx", ["vite", "build", "--logLevel", "warn"], dir);
-    const publicVoice = fs.readFileSync(path.join(dir, "dist", stockVoice.file));
-    if (createHash("sha256").update(publicVoice).digest("hex") !== stockVoice.sha256) throw new Error(`${name}: build lost or changed the public voice asset`);
+    for (const voice of stockVoices) {
+      const publicVoice = fs.readFileSync(path.join(dir, "dist", voice.file));
+      if (createHash("sha256").update(publicVoice).digest("hex") !== voice.sha256) throw new Error(`${name}: build lost or changed the public voice asset ${voice.file}`);
+    }
     const assets = fs.readdirSync(path.join(dir, "dist/assets"));
     const worker = assets.find((f) => /^worker.*\.js$/.test(f));
     if (!worker) throw new Error(`${name}: build did not emit the worker (${assets.join(", ")})`);
