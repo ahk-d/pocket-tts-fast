@@ -54,6 +54,10 @@ export async function sha256Hex(bytes: Uint8Array): Promise<string> {
 }
 
 async function readBody(response: Response, label: string, fromCache: boolean, onProgress?: (e: ProgressEvent) => void): Promise<Uint8Array> {
+  // With Content-Encoding (GitHub Pages gzips .npy), Content-Length is the
+  // compressed size while the body arrives decoded, so it is only a size hint.
+  const encoding = response.headers.get("content-encoding");
+  const compressed = !!encoding && encoding !== "identity";
   const total = Number(response.headers.get("content-length")) || 0;
   if (!response.body || !total) {
     const buf = new Uint8Array(await response.arrayBuffer());
@@ -74,10 +78,13 @@ async function readBody(response: Response, label: string, fromCache: boolean, o
     }
     out.set(value, loaded);
     loaded += value.length;
-    onProgress?.({ label, loaded, total, fromCache });
+    onProgress?.({ label, loaded, total: Math.max(total, loaded), fromCache });
   }
-  if (loaded !== total) throw new Error(`Incomplete download of ${label}: ${loaded} of ${total} bytes`);
-  return out;
+  // A decoded body larger than the header means it was compressed in transit
+  // (the encoding header is hidden on cross-origin responses); manifest
+  // size and hash checks still apply to the result.
+  if (loaded < total && !compressed) throw new Error(`Incomplete download of ${label}: ${loaded} of ${total} bytes`);
+  return loaded === out.length ? out : out.slice(0, loaded);
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -95,6 +95,17 @@ test("a truncated response is retried, then succeeds", async () => {
   assert.equal(fetch.calls.length, 2);
 });
 
+test("a compressed response (decoded body larger than Content-Length) is accepted", async () => {
+  const gzipped = () => new Response(enc("hello"), { status: 200, headers: { "content-length": "3", "content-encoding": "gzip" } });
+  const hiddenEncoding = () => new Response(enc("hello"), { status: 200, headers: { "content-length": "3" } });
+  for (const res of [gzipped, hiddenEncoding]) {
+    const fetch = fakeFetch([res]);
+    const host = createWebHost({ ort, manifest: manifest(), fetch, cache: false, retryDelayMs: 0 });
+    assert.deepEqual(await host.readAsset("a.bin", "a"), enc("hello"));
+    assert.equal(fetch.calls.length, 1);
+  }
+});
+
 test("429 and network errors are retried a finite number of times", async () => {
   const tooMany = () => new Response(null, { status: 429, headers: { "retry-after": "0" } });
   const fetch = fakeFetch([tooMany, new TypeError("network down"), ok("hello")]);
