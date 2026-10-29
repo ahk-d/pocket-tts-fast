@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-alpha.0 (2026-10-29)
 
 - English (`language: "english"`): the `english_2026-04` bundle at the same pinned
   revision, SHA-256 checked, with its own Alba embedding (`voices/alba-casual.en.emb.npy`,

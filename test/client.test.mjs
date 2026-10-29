@@ -3,6 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PocketTTS, BUILD_ID } from "../dist/index.js";
+import pkg from "../package.json" with { type: "json" };
 
 const workers = [];
 class MockWorker {
@@ -207,5 +208,5 @@ test("a worker from another build is refused (stale cached worker.js)", async ()
   await assert.rejects(load, /does not match client build/);
   assert.equal(tts.ready, false);
   assert.equal(w.terminated, true);
-  assert.match(BUILD_ID, /^0\.1\.0-alpha\.0\+[0-9a-f]{12}$/);
+  assert.ok(BUILD_ID.startsWith(`${pkg.version}+`) && /\+[0-9a-f]{12}$/.test(BUILD_ID), BUILD_ID);
 });

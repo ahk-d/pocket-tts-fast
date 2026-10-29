@@ -1,6 +1,6 @@
 {
   "name": "pocket-tts-fast",
-  "version": "0.1.0-alpha.0",
+  "version": "0.2.0-alpha.0",
   "description": "Optimized Pocket TTS for the browser: dynamic KV caches, streaming audio, stock voices and optional local cloning. Framework-free JavaScript with TypeScript types.",
   "license": "MIT",
   "type": "module",
