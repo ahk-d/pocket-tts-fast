@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pocket TTS: fixed vs dynamic cache</title>
+  <meta name="description" content="Run Kyutai Pocket TTS twice in your browser, with the stock fixed KV cache and with pocket-tts-fast's dynamic cache, and compare speed and output.">
+  <link rel="stylesheet" href="./compare.css">
+  <!-- Static hosts without custom headers (GitHub Pages): a service worker adds the
+       cross-origin isolation headers WASM threads need. No-op when already isolated. -->
+  <script src="./coi-serviceworker.min.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="kicker">pocket-tts-fast · in your browser</p>
+      <h1>Same model. Same audio. Faster.</h1>
+      <p class="lede">This page runs Kyutai Pocket TTS on your device twice: once with the stock 1,000-slot KV cache, once with the cache sized to the sentence. Nothing is sent to a server.</p>
+    </header>
+
+    <section class="controls" aria-label="Test setup">
+      <div class="seg" role="radiogroup" aria-label="Language">
+        <button type="button" role="radio" data-lang="german" aria-checked="true">Deutsch</button>
+        <button type="button" role="radio" data-lang="english" aria-checked="false">English</button>
+      </div>
+      <ol id="phrases" class="phrases"></ol>
+      <div class="actions">
+        <button id="run" class="primary" type="button">Run comparison</button>
+        <span id="status" class="status" role="status" aria-live="polite">First run downloads about 125 MB of model files, then they are cached.</span>
+      </div>
+      <progress id="progress" max="1" value="0" hidden></progress>
+    </section>
+
+    <section id="summary" class="summary" hidden aria-live="polite">
+      <div><span id="sum-speed" class="big">–</span><span class="label">faster generation (median)</span></div>
+      <div><span id="sum-first" class="big">–</span><span class="label">first audio, original → fast</span></div>
+      <div><span id="sum-same" class="big">–</span><span class="label">identical audio</span></div>
+    </section>
+
+    <section class="lanes">
+      <article class="lane" id="lane-fixed">
+        <h2>Original <small>fixed 1,000-slot cache</small></h2>
+        <div class="clock" data-clock>0.00 s</div>
+        <canvas data-wave height="64"></canvas>
+      </article>
+      <article class="lane fast" id="lane-dynamic">
+        <h2>pocket-tts-fast <small>cache grows with the sentence</small></h2>
+        <div class="clock" data-clock>0.00 s</div>
+        <canvas data-wave height="64"></canvas>
+      </article>
+    </section>
+
+    <div class="table-wrap">
+      <table id="results">
+        <thead>
+          <tr><th>Phrase</th><th>Original</th><th>Fast</th><th>Speedup</th><th>First audio</th><th>RTF</th><th>Same audio</th><th>Listen</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <p id="device" class="device"></p>
+
+    <footer>
+      <p><code>npm install pocket-tts-fast</code> · <a href="https://github.com/ahk-d/pocket-tts-fast">GitHub</a> · <a href="https://www.npmjs.com/package/pocket-tts-fast">npm</a></p>
+      <p>Each phrase runs once per mode after a short warm-up; modes run one after the other, never at the same time. RTF is generation time divided by audio length (below 1 means faster than real time). Model: <a href="https://huggingface.co/kyutai/pocket-tts">Kyutai Pocket TTS</a> (CC BY 4.0), ONNX export <a href="https://huggingface.co/KevinAHM/pocket-tts-onnx">KevinAHM/pocket-tts-onnx</a>. Voice “Alba”: Alba MacKenna via <a href="https://huggingface.co/kyutai/tts-voices">kyutai/tts-voices</a> (CC BY 4.0). Not an official Kyutai project.</p>
+    </footer>
+  </main>
+  <script type="module" src="./compare.js"></script>
+</body>
+</html>

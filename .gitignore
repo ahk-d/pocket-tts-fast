@@ -15,6 +15,8 @@ models/*
 *.safetensors
 
 bench/results/
+site/
+.vercel/
 examples/*/node_modules/
 examples/*/dist/
 consumers/*/node_modules/
@@ -25,3 +27,4 @@ __pycache__/
 
 # Public, attributed CC-BY-4.0 stock embedding included in the npm alpha.
 !voices/alba-casual.emb.npy
+!voices/alba-casual.en.emb.npy
