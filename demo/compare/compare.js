@@ -3,6 +3,8 @@
 // one after the other (never concurrently) with one engine loaded at a time.
 // Query parameters override asset locations, as in the main demo:
 //   ?models=<folder with bundle.json>  ?voices=<folder containing voices/>  ?ort=<onnxruntime-web dist>
+// and the benchmark itself:
+//   ?runs=<1-5>  timed runs per phrase and mode (median reported)   ?set=reel  the phrases used in the video
 import { PocketTTS } from "/dist/index.js";
 
 const $ = (id) => document.getElementById(id);
@@ -25,6 +27,18 @@ const PHRASES = {
     "This weekend we're taking the train to a small lake. We want to go hiking, sit in a little café, and watch the sunset from the shore in the evening.",
   ],
 };
+if (params.get("set") === "reel") {
+  PHRASES.english = [
+    "Okay, that was fast.",
+    "I had a very productive morning, if thinking about work counts as work.",
+    "I opened my laptop to fix one small problem. Two hours later, I'd rearranged my entire desk, made another coffee, and completely forgotten what I was trying to fix.",
+  ];
+  PHRASES.german = [
+    "Moment, ich kann auch Deutsch.",
+    "Ich wollte nur kurz etwas ausprobieren, und jetzt sitze ich seit drei Stunden am Computer.",
+  ];
+}
+const RUNS = Math.min(5, Math.max(1, Math.floor(Number(params.get("runs"))) || 1));
 const WARMUP = { german: "Hallo.", english: "Hello." };
 const MODES = [
   { key: "fixed", dynamicCache: false, lane: $("lane-fixed") },
@@ -147,23 +161,31 @@ async function runMode(mode, phrases) {
   await tts.generate(WARMUP[language], { voice });
   const rows = [];
   for (const [i, text] of phrases.entries()) {
-    status(`${mode.key === "fixed" ? "Original" : "Fast"}: phrase ${i + 1} of ${phrases.length}`);
-    const chunks = [];
-    let first = null;
-    view.start();
-    const t0 = performance.now();
-    await tts.generate(text, {
-      voice,
-      onChunk: (pcm, meta) => {
-        if (first == null && !meta.isSilence) first = (performance.now() - t0) / 1000;
-        chunks.push(pcm.slice());
-        view.chunk(pcm);
-      },
-    });
-    const gen = (performance.now() - t0) / 1000;
-    view.stop(gen);
+    const runs = [];
+    for (let r = 0; r < RUNS; r++) {
+      status(`${mode.key === "fixed" ? "Original" : "Fast"}: phrase ${i + 1} of ${phrases.length}${RUNS > 1 ? `, run ${r + 1} of ${RUNS}` : ""}`);
+      const chunks = [];
+      let first = null;
+      view.start();
+      const t0 = performance.now();
+      await tts.generate(text, {
+        voice,
+        onChunk: (pcm, meta) => {
+          if (first == null && !meta.isSilence) first = (performance.now() - t0) / 1000;
+          chunks.push(pcm.slice());
+          view.chunk(pcm);
+        },
+      });
+      const gen = (performance.now() - t0) / 1000;
+      view.stop(gen);
+      runs.push({ gen, first, chunks, hash: await pcmHash(chunks) });
+    }
+    // Every run must produce the same samples; a mismatch shows up as a differing hash.
+    const hash = runs.every((r) => r.hash === runs[0].hash) ? runs[0].hash : "varies";
+    const gen = median(runs.map((r) => r.gen));
+    const chunks = runs[0].chunks;
     const audio = chunks.reduce((n, c) => n + c.length, 0) / tts.sampleRate;
-    rows.push({ text, gen, first, audio, rtf: gen / audio, chunks, hash: await pcmHash(chunks), sampleRate: tts.sampleRate });
+    rows.push({ text, gen, first: median(runs.map((r) => r.first)), audio, rtf: gen / audio, chunks, hash, sampleRate: tts.sampleRate });
   }
   tts.destroy();
   return { info, rows };
@@ -188,7 +210,7 @@ function render(fixed, dynamic) {
   fixed.rows.forEach((f, i) => {
     const d = dynamic.rows[i];
     const tr = document.createElement("tr");
-    const same = f.hash === d.hash;
+    const same = f.hash === d.hash && f.hash !== "varies";
     const cells = [
       f.text,
       `${fmt(f.gen)} s`,
@@ -214,13 +236,13 @@ function render(fixed, dynamic) {
     body.append(tr);
   });
   const speed = median(fixed.rows.map((f, i) => f.gen / dynamic.rows[i].gen));
-  const same = fixed.rows.filter((f, i) => f.hash === dynamic.rows[i].hash).length;
+  const same = fixed.rows.filter((f, i) => f.hash === dynamic.rows[i].hash && f.hash !== "varies").length;
   $("sum-speed").textContent = `${fmt(speed, 1)}×`;
   $("sum-first").textContent = `${fmt(median(fixed.rows.map((r) => r.first)))} → ${fmt(median(dynamic.rows.map((r) => r.first)))} s`;
   $("sum-same").textContent = `${same} / ${fixed.rows.length}`;
   $("summary").hidden = false;
   const i = dynamic.info;
-  $("device").textContent = `${i.crossOriginIsolated ? `${i.actualThreads} WASM threads` : "1 WASM thread (page not cross-origin isolated)"} · ${i.precision} · ${navigator.hardwareConcurrency ?? "?"} logical cores · ${navigator.userAgent}`;
+  $("device").textContent = `${i.crossOriginIsolated ? `${i.actualThreads} WASM threads` : "1 WASM thread (page not cross-origin isolated)"} · ${i.precision} · ${RUNS > 1 ? `median of ${RUNS} runs` : "1 run"} per phrase · ${navigator.hardwareConcurrency ?? "?"} logical cores · ${navigator.userAgent}`;
 }
 
 $("run").onclick = async () => {
